@@ -94,3 +94,32 @@ Reference quality:
 - Vercel
 - Raycast
 - Huly
+
+## graphify — Knowledge Graph
+
+This project has a live knowledge graph at `graphify-out/` that maps every file, component, hook, type, and import relationship across the codebase.
+
+**Automatic updates:** The graph rebuilds automatically after every `Edit`, `Write`, or `NotebookEdit` tool call via PostToolUse hooks in `.claude/settings.json`. Git post-commit and post-checkout hooks also trigger `graphify update .`. No LLM needed — pure AST extraction.
+
+**For cloud agents (@planner, @coder, @tester, @reviewer):** Query the graph before reading raw files. It tells you which files depend on what, which components are shared, and what will break if you change X.
+
+### Commands
+
+| Task | Command |
+|------|---------|
+| Find where a component/function is used | `graphify query "where is X used"` |
+| Understand relationships between two files | `graphify path "ComponentA" "ComponentB"` |
+| Get a plain-language explanation of a node | `graphify explain "useTheme"` |
+| Find all files impacted by changing X | `graphify affected "X"` |
+| Rebuild the graph after manual changes | `graphify update .` |
+| Browse the full architecture report | `cat graphify-out/GRAPH_REPORT.md` |
+
+### Rules
+
+- For codebase questions, run `graphify query "<question>"` **before** opening files — returns a scoped subgraph, much smaller than grepping raw source
+- Use `graphify path "<A>" "<B>"` to trace import/dependency chains between two symbols
+- Use `graphify explain "<concept>"` for a focused summary of any node and its neighbors
+- Use `graphify affected "<X>"` before modifying a shared utility to see downstream impact
+- Read `graphify-out/GRAPH_REPORT.md` only for broad architecture review when the above commands don't surface enough
+- If `graphify-out/wiki/index.md` exists, use it for broad navigation instead of raw source browsing
+- The graph is gitignored — rebuild locally at any time with: `graphify update .`
